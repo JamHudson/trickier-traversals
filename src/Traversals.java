@@ -54,7 +54,19 @@ public class Traversals {
    * @return a list of node values in a top-to-bottom order, or an empty list if the tree is null
    */
   public static <T> List<T> collectLevelOrderValues(TreeNode<T> node) {
-    return null;
+    ArrayList<T> list = new ArrayList<>();
+    Queue<TreeNode<T>> queue = new LinkedList<>();
+    queue.add(node);
+
+    while (!queue.isEmpty()) {
+      TreeNode<T> current = queue.poll();
+      if (current == null) continue;
+      list.add(current.value);
+      queue.add(current.left);
+      queue.add(current.right);
+    }
+    
+    return list;
   }
 
   /**
