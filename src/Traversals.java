@@ -141,10 +141,20 @@ public class Traversals {
       return true;
     if (nodeA == null || nodeB == null) 
       return false;
-    
+
     return haveSameShape(nodeA.left,nodeB.left) && haveSameShape(nodeA.right,nodeB.right);
   }
 
+
+  // For a Tree of size one, I need to return [[rootValue]]
+  // For a full Tree 2 layers deep, I need to return
+  // [[rootValue,left],[rootValue,right]]
+  // For a full Tree 3 layers deep, I need to return
+  // [[rootValue,left,left2],[rootValue,left2,leftright],[rootValue,right,rightleft],[rootValue,right,right2]]
+
+  // What if instead of working downwards to create the list, I worked upwards?
+  // Every leaf will return to the root, so find every leaf, and for every leaf,
+  // create a list.
 
   // OPTIONAL CHALLENGE
   // Very challenging!
@@ -174,6 +184,57 @@ public class Traversals {
    * @return a list of lists, where each inner list represents a root-to-leaf path in pre-order
    */
   public static <T> List<List<T>> findAllRootToLeafPaths(TreeNode<T> node) {
-    return null;
+    List<List<T>> listOfLists = new ArrayList<>();
+    if (node == null) return listOfLists;
+    
+    // Call the helper method
+    List<Stack<T>> leafStacks = findLeafPaths(node);
+
+    // Convert to stacks to lists
+    for (Stack<T> leafStack : leafStacks) {
+      List<T> newList = new ArrayList<>();
+      while (!leafStack.isEmpty()) {
+        newList.add(leafStack.pop());
+      }
+      listOfLists.add(newList);
+    }
+
+    return listOfLists;
+  }
+
+  // Returns a List of Stacks representing a path from the given node to every leaf.
+  // Uses a Stack specifically for layering purposes. 
+  // Should probably use a List instead.
+  private static <T> List<Stack<T>> findLeafPaths(TreeNode<T> node) {
+    if (node == null) return new ArrayList<>();
+    // If this is a leaf, create a new path to return to the top with
+    if (node.left == null && node.right == null) {
+      Stack<T> leafPath = new Stack<>();
+      leafPath.push(node.value);
+      // Create a list to store this INDIVIDUAL path.
+      List<Stack<T>> newList = new ArrayList<>();
+      newList.add(leafPath);
+      return newList;
+    } 
+    else {
+      // Get the list of paths to the left and right
+      List<Stack<T>> leafPathsLeft = findLeafPaths(node.left);
+      List<Stack<T>> leafPathsRight = findLeafPaths(node.right);
+      // If there is a direct leaf, there is only one Stack here.
+      for (Stack<T> path : leafPathsLeft) {
+        // Add self to the top of all of the left paths
+        path.push(node.value);
+      }
+      for (Stack<T> path : leafPathsRight) {
+        // Add self to the top of all of the right paths
+        path.push(node.value);
+      }
+
+      // Combine all the paths into one list
+      List<Stack<T>> leafPaths = new ArrayList<>();
+      leafPaths.addAll(leafPathsLeft);
+      leafPaths.addAll(leafPathsRight);
+      return leafPaths;
+    }
   }
 }
